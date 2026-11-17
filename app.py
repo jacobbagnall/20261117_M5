@@ -91,6 +91,6 @@ def main():
 
     export_data(df_book, book_failed, "books", cleaned_path)
     export_data(df_system, book_system, "system", cleaned_path)
-
+    print("done")
 if __name__ == "__main__":
     main()
