@@ -7,7 +7,7 @@ import pandas as pd
 #paths
 repo_path = Path(__file__).resolve().parent
 data_path = repo_path/ "data"
-cleaned_path = repo_path/ "clenned"
+cleaned_path = repo_path/ "cleaned"
 
 #input csv
 books_input = data_path/ "03_Library Systembook.csv"
