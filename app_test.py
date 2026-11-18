@@ -1,6 +1,7 @@
-import unittest
+import unittest 
 import pandas as pd
-from app import borrow_length, clean_dates
+from app import borrow_length, clean_dates , check_duplicate_ids
+
 
 
 
@@ -8,7 +9,7 @@ from app import borrow_length, clean_dates
 class TestOperations(unittest.TestCase):
 
     def test_valid_dates(self):
-        df = pd.DataFrame({"checkout": ["01/06/2026", "15/06/2026", "not a date"]}, dtype="string")
+        df = pd.DataFrame({"checkout": ["01/06/2026", "15/06/2026"]}, dtype="string")
 
         clean, failed = clean_dates(df, "checkout")
 
@@ -17,7 +18,7 @@ class TestOperations(unittest.TestCase):
         self.assertTrue(pd.api.types.is_datetime64_any_dtype(clean["checkout"]))
     
     def test_invalid_dates(self):
-        df =pd.DataFrame({"checkout": ["01/06/2026", "32/06/2026"]}, dtype="string")
+        df =pd.DataFrame({"checkout": ["01/06/2026", "32/06/2026","not a date"]}, dtype="string")
 
         clean, failed = clean_dates(df, "checkout")
 
@@ -32,6 +33,18 @@ class TestOperations(unittest.TestCase):
 
         self.assertTrue((clean["days_borrowed"]>= 0).all())
         self.assertEqual(len(failed), 1)
+    
+    def test_duplicate_ids(self):
+        df = pd.DataFrame({"Id_p":([1,2,3,3,4,5,6]),})
+        
+        clean, failed = check_duplicate_ids(df,["Id_p"])
+
+        self.assertEqual(len(clean),5)
+        self.assertEqual(len(failed),2)
+
+    
+
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
