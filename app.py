@@ -49,7 +49,7 @@ def clean_dates (df: pd.DataFrame,col:str):
     raw = df[col].str.strip().str.strip("\"'")
     df[col] = pd.to_datetime(raw, format=date_format, errors = "coerce")
 
-    mask = df[col].isna().notna()
+    mask = df[col].isna() & raw.notna()
 
     failed = df[mask].copy()
     failed["fail_reason"] = f"invalid date in {col}"
