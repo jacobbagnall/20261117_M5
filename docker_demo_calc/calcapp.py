@@ -26,7 +26,7 @@ class calculatour:
 if __name__ == "__main__":
     myCalc = calculatour(a=247,b=12)
 
-    out = Path("/data/hello.txt")
+    out = Path("/data/results.txt")
     out.parent.mkdir(parents=True, exist_ok=True)
 
     line = f"{datetime.now()} Divide: {myCalc.get_div()}"
