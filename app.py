@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pandas as pd
-
+from datetime import datetime
 import sqlite3
 
 #----------------core variables
@@ -10,7 +10,7 @@ import sqlite3
 repo_path = Path(__file__).resolve().parent
 data_path = repo_path/ "data"
 cleaned_path = repo_path/ "cleaned"
-db_path = cleaned_path / "libaray.db"
+db_path = cleaned_path / "libray.db"
 
 #input csv
 books_input = data_path/ "03_Library Systembook.csv"
@@ -86,10 +86,37 @@ def export_to_sqlite(tables:dict[str, pd.DataFrame], db_path: Path):
             df.to_sql(table_name, conn, if_exists="replace", index=False)
             print(f"{table_name}: {len(df)} rows written")
 
+def log_counts(run_time: str, table_name: str, rows_in: int, clean: pd.DataFrame, failed:pd.DataFrame):
+    rows_passed = len(clean)
+    rows_failed = len(failed)
+
+    return{
+        "run_time": run_time,
+        "table_name": table_name,
+        "rows_in": rows_in,
+        "rows_passed": rows_passed,
+        "rows_failed": rows_failed, 
+        "check": "ok" if rows_in == rows_passed + rows_failed else "Mismatch",
+    }
+
+def export_log (log_rows: list[dict],db_path: Path):
+    log_df = pd.DataFrame(log_rows)
+
+    with sqlite3.connect(db_path) as conn:
+        log_df.to_sql("pipeline_log", conn, if_exists="append", index=False)
+
+    print(log_df.to_string(index=False))
+
 #--------------pipeline
 def main():
+    run_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+
     df_book = load_data(books_input)
     df_system = load_data(system_input)
+
+    book_rows_in = len(df_book)
+    system_rows_in = len(df_system)
+
 
     #df_book
 
@@ -132,6 +159,13 @@ def main():
         "book": df_book,
         "customer": df_system
     },
+    db_path,
+    )
+
+    export_log([
+        log_counts(run_time,"book",book_rows_in,df_book, book_failed),
+        log_counts(run_time,"system",system_rows_in,df_system, book_system),
+    ],
     db_path,
     )
 
