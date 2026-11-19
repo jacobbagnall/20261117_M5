@@ -98,12 +98,17 @@ def log_counts(run_time: str, table_name: str, rows_in: int, clean: pd.DataFrame
         "rows_failed": rows_failed, 
         "check": "ok" if rows_in == rows_passed + rows_failed else "Mismatch",
     }
-
-def export_log (log_rows: list[dict],db_path: Path):
+#export log fuction
+def export_log (log_rows: list[dict],db_path: Path, out_dir: Path):
     log_df = pd.DataFrame(log_rows)
-
+    #db export
     with sqlite3.connect(db_path) as conn:
         log_df.to_sql("pipeline_log", conn, if_exists="append", index=False)
+
+    #csv export
+    out_dir.mkdir(parents=True, exist_ok=True)
+    log_csv = out_dir / "pipeline_log.csv"
+    log_df.to_csv(log_csv,mode="a", header=not log_csv.exists(), index=False)
 
     print(log_df.to_string(index=False))
 
@@ -161,12 +166,13 @@ def main():
     },
     db_path,
     )
-
+    # export logs
     export_log([
         log_counts(run_time,"book",book_rows_in,df_book, book_failed),
         log_counts(run_time,"system",system_rows_in,df_system, book_system),
     ],
     db_path,
+    cleaned_path
     )
 
     print("done")

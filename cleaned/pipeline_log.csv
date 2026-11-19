@@ -1,0 +1,3 @@
+run_time,table_name,rows_in,rows_passed,rows_failed,check
+2026/11/19 14:56:27,book,114,13,101,ok
+2026/11/19 14:56:27,system,9,8,1,ok
